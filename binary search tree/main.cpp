@@ -37,9 +37,52 @@ void inorder(Node* node)
     {
         inorder(node->l);
         cout<<node->key<<" ";
-        delete node;//一邊印一邊delete
+        //delete node;//一邊印一邊delete
         inorder(node->r);
     }
+}
+Node* minValueNode(Node* node)
+{
+    Node* tmp=node;
+    while(tmp->l!=NULL)
+        tmp=tmp->l;
+    return tmp;
+}
+Node* delete_(Node* node, int d)
+{
+    if(node==NULL)
+        return node;
+    if(d < node->key)//去左子樹找來砍
+        node->l=delete_(node->l,d);/*關鍵*/
+    else if(d > node->key)//去右子樹找來砍
+        node->r=delete_(node->r,d);/*關鍵*/
+    else
+    {
+        if(node->l==NULL)
+        {
+            Node *tmp=node->r;
+            delete node;
+            node = NULL;
+            return tmp;
+            /*要刪除最後一個node時，即使刪除node 且將node指到NULL，main function的root還是會有一個node，
+             因為node 和root是兩個指標，雖然都指到同一個地方，但不會因為對方改了指向，自己也跟著改*/
+        }
+        else if(node->r==NULL)
+        {
+            Node *tmp=node->l;
+            delete node;
+            node = NULL;
+            return tmp;
+        }
+        else
+        {
+            Node* tmp=minValueNode(node->r);//找出右子樹最小的來取代要砍掉的
+            node->key=tmp->key;
+            node->r=delete_(node->r, node->key);//取代root的相當於右子樹要砍掉的
+        }
+    }
+    return node;
+    
 }
 int main(int argc, const char * argv[]) {
     Node *root=NULL;
@@ -50,6 +93,35 @@ int main(int argc, const char * argv[]) {
     insert(root,10);
     insert(root,50);
     inorder(root);
+    cout<<endl;
+    root=delete_(root,60);
+    inorder(root);
+    cout<<endl;
+    root=delete_(root,40);
+    inorder(root);
+    cout<<endl;
+    root=delete_(root,20);
+    inorder(root);
+    cout<<endl;
+    root=delete_(root,10);
+    inorder(root);
+    cout<<endl;
+    root=delete_(root,80);
+    inorder(root);
+    cout<<endl;
+    root=delete_(root,50);
+    /*如果刪除root的最後一個node時沒寫root=收到delete_的回傳NULL，
+     root會剩下一個node，為了統一，所有的delete都加上root=*/
+    inorder(root);
+    cout<<endl;
     return 0;
 }
-
+/*
+ 10 20 40 50 60 80
+ 10 20 40 50 80
+ 10 20 50 80
+ 10 50 80
+ 50 80
+ 50
+ 
+ */
